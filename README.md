@@ -26,13 +26,17 @@ Wait a second, this isn't AStar anymore!
 
 It's true, due to the drastic simplification it's arguably just an approximation and probably shouldn't qualify for the name.
 
+Is is this for Godot?
+
+A simple wrapper for Godot 4.x is included. The actual logic itself does not involve Godot in any way.
+
 # Installation
 
 This repository is designed to be loaded as a GIT Submodule. How you add these depends on your client of choice.
 
 [Refer to this if you're mad enough to use the command line :P](https://git-scm.com/book/en/v2/Git-Tools-Submodules)
 
-Alternatively, download the zip from this page and unpack it into your addons folder under res://addons/NodeTools
+Alternatively, download the zip from this page and unpack it into your project folder.
 
 
 ### Looking for more?
