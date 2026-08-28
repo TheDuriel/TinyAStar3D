@@ -45,9 +45,7 @@ public sealed class VoxelGrid
         _traversable = new ulong[(NodeCount + 63) / 64];
 
         // New grids are completely traversable by default.
-        Array.Fill(
-            _traversable,
-            ulong.MaxValue);
+        Array.Fill(_traversable, ulong.MaxValue);
 
         // The last word may contain unused bits if the number
         // of voxels isn't evenly divisible by 64.
@@ -55,9 +53,7 @@ public sealed class VoxelGrid
         int unusedBits = (_traversable.Length * 64) - NodeCount;
 
         if (unusedBits > 0)
-        {
             _traversable[^1] = ulong.MaxValue >> unusedBits;
-        }
     }
 
     public int ToId(int x, int y, int z)
