@@ -26,7 +26,7 @@ Wait a second, this isn't AStar anymore!
 
 It's true, due to the drastic simplification it's arguably just an approximation and probably shouldn't qualify for the name.
 
-Is is this for Godot?
+Is this for Godot?
 
 A simple wrapper for Godot 4.x is included. The actual logic itself does not involve Godot in any way.
 
