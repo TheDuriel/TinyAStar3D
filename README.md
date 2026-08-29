@@ -30,6 +30,17 @@ Is this for Godot?
 
 A simple wrapper for Godot 4.x is included. The actual logic itself does not involve Godot in any way.
 
+# Use Case
+
+TinyAStar3D is meant for: Fixed size grids.
+
+It makes the following assumptions:
+
+* Your graph is a grid. Ideally it is divisible by 64 in every dimension.
+* Your graph is connected in cardinal directions. Up, down, left, right, forwards, back.
+* Your graph does not have node weights.
+* You're looking for speed over quality. The heuristic has been impacted by these limitations.
+
 # Installation
 
 This repository is designed to be loaded as a GIT Submodule. How you add these depends on your client of choice.
