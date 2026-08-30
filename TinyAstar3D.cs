@@ -7,6 +7,7 @@ namespace HEADSHOTTHEMOON.DotNet.TinyAstar3D;
 [GlobalClass]
 public partial class TinyAstar3D : GodotObject
 {
+	private Vector3I _gridSize;
     private VoxelGrid _grid;
     private BitAStar _astar;
 
@@ -14,6 +15,7 @@ public partial class TinyAstar3D : GodotObject
     // Grid is lightweight and can be used in the editor.
     public void CreateGrid(Vector3I gridSize)
     {
+	    _gridSize = gridSize;
 	    _grid = new VoxelGrid(gridSize.X, gridSize.Y, gridSize.Z);
     }
 	
@@ -61,15 +63,59 @@ public partial class TinyAstar3D : GodotObject
 	    if (_grid == null)
 		    throw new InvalidOperationException("Grid is not set");
 	    
-	    return _grid.IsTraversable(_grid.ToId(position.X, position.Y, position.Z));
+	    return IsInsideGrid(position) && _grid.IsTraversable(_grid.ToId(position.X, position.Y, position.Z));
     }
 	
     public void SetTraversable(Vector3I position, bool state)
     {
 	    if (_grid == null)
 		    throw new InvalidOperationException("Grid is not set");
+
+	    if (!IsInsideGrid(position))
+		    return;
 	    
 	    _grid.SetTraversable(_grid.ToId(position.X, position.Y, position.Z), state);
     }
-    
+
+    public Vector3I WorldToGrid(Vector3 worldPosition, Vector3 worldSize, bool worldOriginIsCenter)
+    {
+	    if (_grid == null)
+		    throw new InvalidOperationException("Grid is not set");
+
+	    Vector3 cellSize = worldSize / _gridSize;
+	    Vector3 gridPosition = worldPosition / cellSize;
+	    gridPosition = gridPosition.Round();
+	    if (worldOriginIsCenter)
+		    gridPosition += _gridSize / 2;
+
+	    return (Vector3I)gridPosition;
+    }
+
+    public Vector3 GridToWorld(Vector3I gridPosition, Vector3 worldSize, bool worldOriginIsCenter)
+    {
+	    if (_grid == null)
+		    throw new InvalidOperationException("Grid is not set");
+
+	    Vector3 cellSize = worldSize / _gridSize;
+	    Vector3 worldPosition = gridPosition * cellSize;
+	    if (worldOriginIsCenter)
+		    worldPosition -= worldSize / 2;
+	    
+	    return worldPosition;
+    }
+
+    public bool IsInsideGrid(Vector3I gridPosition)
+    {
+	    if (_grid == null)
+		    throw new InvalidOperationException("Grid is not set");
+
+	    if (gridPosition.X < 0 || gridPosition.X >= _gridSize.X)
+		    return false;
+	    else if (gridPosition.Y < 0 || gridPosition.Y >= _gridSize.Z)
+		    return false;
+	    else if (gridPosition.Z < 0 || gridPosition.Y >= _gridSize.Z)
+		    return false;
+	    
+	    return true;
+    }
 }
