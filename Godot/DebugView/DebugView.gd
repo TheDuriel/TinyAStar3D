@@ -1,7 +1,7 @@
 class_name TinyAStar3DDebugView
 extends Node3D
 
-const DIMENSIONS: Vector3i = Vector3i(32, 32, 32)
+const DIMENSIONS: Vector3i = Vector3i(16, 16, 16)
 
 
 var _multi: MultiMeshInstance3D = MultiMeshInstance3D.new()
@@ -24,6 +24,7 @@ func _init(astar: TinyAstar3D) -> void:
 	_primitive.size = Vector3(0.2, 0.2, 0.2)
 	
 	_mesh.transform_format = MultiMesh.TRANSFORM_3D
+	_mesh.instance_count = DIMENSIONS.x * DIMENSIONS.y * DIMENSIONS.z
 	_mesh.mesh = _primitive
 	
 	_multi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -72,6 +73,7 @@ func _physics_process(_delta: float) -> void:
 				points.append(world_pos)
 	
 	var count: int = points.size()
-	_mesh.instance_count = count
+	_mesh.visible_instance_count = count
+	
 	for index: int in count:
 		_mesh.set_instance_transform(index, Transform3D(Basis(), points[index]))
