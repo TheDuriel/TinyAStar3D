@@ -1,10 +1,13 @@
 [gd_resource type="StandardMaterial3D" format=3 uid="uid://bilmhd1i35lu6"]
 
 [resource]
-transparency = 4
+transparency = 1
 blend_mode = 3
 no_depth_test = true
 shading_mode = 0
 specular_mode = 2
-albedo_color = Color(0, 1, 1, 0.25)
+disable_ambient_light = true
+disable_fog = true
+disable_specular_occlusion = true
+albedo_color = Color(0, 1, 1, 0.2509804)
 disable_receive_shadows = true
