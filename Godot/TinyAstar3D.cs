@@ -90,33 +90,45 @@ public partial class TinyAstar3D : GodotObject
 	    return _worldSize;
     }
 
-    public Vector3I WorldToGrid(Vector3 worldPosition, Vector3 worldSize, bool worldOriginIsCenter)
+    public Vector3I WorldToGrid(Vector3 worldPosition)
     {
 	    if (_grid == null)
 		    throw new InvalidOperationException("Grid is not set");
 
-	    Vector3 cellSize = worldSize / _gridSize;
+	    Vector3 cellSize = _worldSize / _gridSize;
 	    Vector3 gridPosition = worldPosition / cellSize;
 	    gridPosition = gridPosition.Round();
-	    if (worldOriginIsCenter)
-		    gridPosition += _gridSize / 2;
+	    gridPosition += _gridSize / 2;
 
 	    return (Vector3I)gridPosition;
     }
 
-    public Vector3 GridToWorld(Vector3I gridPosition, Vector3 worldSize, bool worldOriginIsCenter)
+    public Vector3 GridToWorld(Vector3I gridPosition)
     {
 	    if (_grid == null)
 		    throw new InvalidOperationException("Grid is not set");
 
-	    Vector3 cellSize = worldSize / _gridSize;
+	    Vector3 cellSize = _worldSize / _gridSize;
 	    Vector3 worldPosition = gridPosition * cellSize;
-	    if (worldOriginIsCenter)
-		    worldPosition -= worldSize / 2;
+	    worldPosition -= _worldSize / 2;
 	    
 	    return worldPosition;
     }
 
+    public bool IsInsideWorld(Vector3I worldPosition)
+    {
+	    if (_grid == null)
+		    throw new InvalidOperationException("Grid is not set");
+
+	    if (worldPosition.X < -_worldSize.X / 2 || worldPosition.X >= _worldSize.X / 2)
+		    return false;
+	    else if (worldPosition.Y < -_worldSize.Y / 2 || worldPosition.Y >= _worldSize.Z / 2)
+		    return false;
+	    else if (worldPosition.Z < -_worldSize.Z / 2 || worldPosition.Y >= _worldSize.Z / 2)
+		    return false;
+	    
+	    return true;
+    }
     public bool IsInsideGrid(Vector3I gridPosition)
     {
 	    if (_grid == null)
@@ -124,9 +136,9 @@ public partial class TinyAstar3D : GodotObject
 
 	    if (gridPosition.X < 0 || gridPosition.X >= _gridSize.X)
 		    return false;
-	    else if (gridPosition.Y < 0 || gridPosition.Y >= _gridSize.Z)
+	    else if (gridPosition.Y < 0 || gridPosition.Y >= _gridSize.Y)
 		    return false;
-	    else if (gridPosition.Z < 0 || gridPosition.Y >= _gridSize.Z)
+	    else if (gridPosition.Z < 0 || gridPosition.Z >= _gridSize.Z)
 		    return false;
 	    
 	    return true;
