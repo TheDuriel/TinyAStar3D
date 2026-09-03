@@ -9,6 +9,7 @@ public partial class TinyAstar3D : GodotObject
 {
 	private Vector3I _gridSize;
 	private Vector3 _worldSize;
+	private Vector3 _cellSize;
 
     private VoxelGrid _grid;
     private BitAStar _astar;
@@ -19,6 +20,7 @@ public partial class TinyAstar3D : GodotObject
     {
 	    _gridSize = gridSize;
 	    _worldSize = worldSize;
+	    _cellSize = worldSize / gridSize;
 	    _grid = new VoxelGrid(gridSize.X, gridSize.Y, gridSize.Z);
     }
 	
@@ -98,8 +100,7 @@ public partial class TinyAstar3D : GodotObject
 	    if (!IsInsideWorld(worldPosition))
 		    return Vector3I.Zero;
 	    
-	    Vector3 cellSize = _worldSize / _gridSize;
-	    Vector3 gridPosition = worldPosition / cellSize;
+	    Vector3 gridPosition = worldPosition / _cellSize;
 	    gridPosition = gridPosition.Round();
 	    gridPosition += _gridSize / 2;
 
@@ -114,9 +115,9 @@ public partial class TinyAstar3D : GodotObject
 	    if (!IsInsideGrid(gridPosition))
 		    return Vector3.Zero;
 	    
-	    Vector3 cellSize = _worldSize / _gridSize;
-	    Vector3 worldPosition = gridPosition * cellSize;
+	    Vector3 worldPosition = gridPosition * _cellSize;
 	    worldPosition -= _worldSize / 2;
+	    worldPosition += _cellSize / 2;
 	    
 	    return worldPosition;
     }
@@ -148,5 +149,13 @@ public partial class TinyAstar3D : GodotObject
 		    return false;
 	    
 	    return true;
+    }
+
+    public Vector3 GetCellSize()
+    {
+	    if (_grid == null)
+		    throw new InvalidOperationException("Grid is not set");
+
+	    return _cellSize;
     }
 }

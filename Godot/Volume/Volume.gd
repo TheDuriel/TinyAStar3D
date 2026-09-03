@@ -39,65 +39,82 @@ func get_grid_points_in_box(world_size: Vector3, grid_size: Vector3i) -> Array[V
 	var object_size: Vector3i = size
 	var object_transform: Transform3D = global_transform
 	var result: Array[Vector3i] = []
-	
-	if world_size.x <= 0.0 or world_size.y <= 0.0 or world_size.z <= 0.0:
-		return result
-	
+
 	if grid_size.x <= 0 or grid_size.y <= 0 or grid_size.z <= 0:
 		return result
-	
-	# Transform world-space points into the box's local space.
-	var inverse_transform: Transform3D = object_transform.affine_inverse()
-	
-	# The box is centered on its transform origin.
-	var half_size: Vector3 = object_size * 0.5
-	
-	# Only test grid points that could possibly be inside the box.
-	var local_corners: Array[Vector3] = [
-		Vector3(-half_size.x, -half_size.y, -half_size.z),
-		Vector3( half_size.x, -half_size.y, -half_size.z),
-		Vector3(-half_size.x,  half_size.y, -half_size.z),
-		Vector3( half_size.x,  half_size.y, -half_size.z),
-		Vector3(-half_size.x, -half_size.y,  half_size.z),
-		Vector3( half_size.x, -half_size.y,  half_size.z),
-		Vector3(-half_size.x,  half_size.y,  half_size.z),
-		Vector3( half_size.x,  half_size.y,  half_size.z)]
-	
-	var world_min: Vector3 = Vector3(INF, INF, INF)
-	var world_max: Vector3 = Vector3(-INF, -INF, -INF)
-	
-	for corner: Vector3 in local_corners:
-		var world_corner: Vector3 = object_transform * corner
-		world_min = world_min.min(world_corner)
-		world_max = world_max.max(world_corner)
-	
-	# Clamp the world-space bounding box to the grid's valid range.
-	var min_grid: Vector3i = Vector3i(
-		clampi(int(floor(world_min.x / world_size.x * grid_size.x)), 0, grid_size.x - 1),
-		clampi(int(floor(world_min.y / world_size.y * grid_size.y)), 0, grid_size.y - 1),
-		clampi(int(floor(world_min.z / world_size.z * grid_size.z)), 0, grid_size.z - 1))
-	
-	var max_grid: Vector3i = Vector3i(
-		clampi(int(ceil(world_max.x / world_size.x * grid_size.x)), 0, grid_size.x),
-		clampi(int(ceil(world_max.y / world_size.y * grid_size.y)), 0, grid_size.y),
-		clampi(int(ceil(world_max.z / world_size.z * grid_size.z)), 0, grid_size.z))
-	
-	for z: int in range(min_grid.z, max_grid.z):
-		for y: int in range(min_grid.y, max_grid.y):
-			for x: int in range(min_grid.x, max_grid.x):
-				# Grid point in world space.
-				var world_point: Vector3 = Vector3(
-					(x + 0.5) * world_size.x / grid_size.x,
-					(y + 0.5) * world_size.y / grid_size.y,
-					(z + 0.5) * world_size.z / grid_size.z)
-				
-				# Convert to box-local coordinates.
-				var local_point: Vector3 = inverse_transform * world_point
-				
-				# Test against the unscaled local box.
+
+	if object_size.x < 0.0 or object_size.y < 0.0 or object_size.z < 0.0:
+		return result
+
+	# World-space bounds.
+	var world_min := -world_size * 0.5
+	var cell_size := Vector3(
+		world_size.x / grid_size.x,
+		world_size.y / grid_size.y,
+		world_size.z / grid_size.z
+	)
+
+	# Transform the 8 box corners into world space.
+	var half_size := object_size * 0.5
+	var object_basis := object_transform.basis
+	var origin := object_transform.origin
+
+	# For an oriented box, the world-space AABB extents
+	# are the absolute basis rows multiplied by the local half-size.
+	var aabb_extents := Vector3(
+		abs(object_basis[0].x) * half_size.x
+			+ abs(object_basis[1].x) * half_size.y
+			+ abs(object_basis[2].x) * half_size.z,
+
+		abs(object_basis[0].y) * half_size.x
+			+ abs(object_basis[1].y) * half_size.y
+			+ abs(object_basis[2].y) * half_size.z,
+
+		abs(object_basis[0].z) * half_size.x
+			+ abs(object_basis[1].z) * half_size.y
+			+ abs(object_basis[2].z) * half_size.z
+	)
+
+	var box_min := origin - aabb_extents
+	var box_max := origin + aabb_extents
+
+	# Convert the AABB into a range of candidate grid indices.
+	# These are cell indices, not world coordinates.
+	var min_grid := Vector3i(
+		clampi(int(floor((box_min.x - world_min.x) / cell_size.x)), 0, grid_size.x - 1),
+		clampi(int(floor((box_min.y - world_min.y) / cell_size.y)), 0, grid_size.y - 1),
+		clampi(int(floor((box_min.z - world_min.z) / cell_size.z)), 0, grid_size.z - 1)
+	)
+
+	var max_grid := Vector3i(
+		clampi(int(ceil((box_max.x - world_min.x) / cell_size.x)), 0, grid_size.x),
+		clampi(int(ceil((box_max.y - world_min.y) / cell_size.y)), 0, grid_size.y),
+		clampi(int(ceil((box_max.z - world_min.z) / cell_size.z)), 0, grid_size.z)
+	)
+
+	# If the box is entirely outside the world.
+	if min_grid.x >= max_grid.x \
+	or min_grid.y >= max_grid.y \
+	or min_grid.z >= max_grid.z:
+		return result
+
+	# Only transform candidate points.
+	var inverse_transform := object_transform.affine_inverse()
+
+	for z in range(min_grid.z, max_grid.z):
+		for y in range(min_grid.y, max_grid.y):
+			for x in range(min_grid.x, max_grid.x):
+				var world_point := world_min + Vector3(
+					(x + 0.5) * cell_size.x,
+					(y + 0.5) * cell_size.y,
+					(z + 0.5) * cell_size.z
+				)
+
+				var local_point := inverse_transform * world_point
+
 				if abs(local_point.x) <= half_size.x \
 				and abs(local_point.y) <= half_size.y \
 				and abs(local_point.z) <= half_size.z:
 					result.append(Vector3i(x, y, z))
-	
+
 	return result

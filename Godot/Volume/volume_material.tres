@@ -6,5 +6,5 @@ blend_mode = 3
 no_depth_test = true
 shading_mode = 0
 specular_mode = 2
-albedo_color = Color(0, 0.8823829, 1, 0.5)
+albedo_color = Color(0, 1, 1, 0.25)
 disable_receive_shadows = true
