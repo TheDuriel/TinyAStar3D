@@ -55,11 +55,14 @@ func _physics_process(_delta: float) -> void:
 		return
 	
 	var cpos: Vector3 = _camera.global_position
-	cpos += -_camera.transform.basis.z * 4
-	var gorigin: Vector3i = _star.WorldToGrid(cpos, _world_size, true)
+	cpos += -_camera.transform.basis.z * 8
+	var gorigin: Vector3i = _star.WorldToGrid(cpos)
 	
-	if not _star.IsInsideGrid(gorigin):
+	if not _star.IsInsideWorld(cpos):
+		visible = false
 		return
+	
+	visible = true
 	
 	for x: int in DIMENSIONS.x:
 		for y: int in DIMENSIONS.y:
@@ -76,6 +79,6 @@ func _physics_process(_delta: float) -> void:
 					continue
 				
 				var state: bool = _star.GetTraversable(grid_pos)
-				var world_pos: Vector3 = _star.GridToWorld(grid_pos, _world_size, true)
+				var world_pos: Vector3 = _star.GridToWorld(grid_pos)
 				_mesh.set_instance_transform(index, Transform3D(Basis(), world_pos))
 				_mesh.set_instance_color(index, Color.GREEN if state else Color.RED)

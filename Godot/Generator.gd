@@ -16,7 +16,7 @@ static func generate(tree: SceneTree, astar: TinyAstar3D) -> void:
 			if node is TinyAStar3DVolume:
 				
 				# Skip pointless. Grid defaults to traversible
-				if i == 0 and node.priority == 0 and node.is_traversible == false:
+				if i == 0 and node.priority == 0 and node.is_traversible == true:
 					continue
 				
 				_generate_from_volume(astar, node)
@@ -26,5 +26,9 @@ static func _generate_from_volume(astar: TinyAstar3D, node: TinyAStar3DVolume) -
 	var points: Array[Vector3i] = node.get_grid_points_in_box(
 			astar.GetWorldSize(), astar.GetGridSize())
 	
+	var node_origin: Vector3i = astar.WorldToGrid(node.global_position)
+	
 	for point: Vector3i in points:
-		astar.SetTraversable(point, node.is_traversible)
+		astar.SetTraversable(point + node_origin, node.is_traversible)
+	
+	print("Points changed: %s" % points.size())
