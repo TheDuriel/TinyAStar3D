@@ -59,6 +59,10 @@ func _build_astar() -> void:
 	_astar.CreateAStar()
 
 
+func get_astar_path(from: Vector3, to: Vector3) -> Array[Vector3]:
+	return _astar.GetPath(_astar.WorldToGrid(from), _astar.WorldToGrid(to))
+
+
 func is_traversible(world_position: Vector3) -> bool:
 	return _astar.GetTraversable(_astar.WorldToGrid(world_position))
 
