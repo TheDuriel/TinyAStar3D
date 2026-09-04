@@ -3,6 +3,11 @@ extends Node3D
 
 const DIMENSIONS: Vector3i = Vector3i(16, 16, 16)
 
+var mesh_scale: float = 1.0:
+	set(value):
+		mesh_scale = max(0.1, value)
+		if _primitive:
+			_primitive.size = Vector3.ONE * mesh_scale
 
 var _multi: MultiMeshInstance3D = MultiMeshInstance3D.new()
 var _mesh: MultiMesh = MultiMesh.new()
@@ -21,7 +26,7 @@ func _init(astar: TinyAstar3D) -> void:
 	_material.disable_receive_shadows = true
 	
 	_primitive.material = _material
-	_primitive.size = Vector3(0.2, 0.2, 0.2)
+	_primitive.size = Vector3.ONE * mesh_scale
 	
 	_mesh.transform_format = MultiMesh.TRANSFORM_3D
 	_mesh.instance_count = DIMENSIONS.x * DIMENSIONS.y * DIMENSIONS.z

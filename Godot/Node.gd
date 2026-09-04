@@ -11,7 +11,10 @@ var draw_debug: bool = false:
 	set(value):
 		draw_debug = value
 		_toggle_draw_debug()
-		
+@export var draw_debug_scale: float = 1.0:
+	set(value):
+		draw_debug_scale = max(0.1, value)
+
 # Size of the AStar Grid to span across the world
 # Should be divisible by 64
 @export var grid_size: Vector3i = Vector3i(256, 256, 256):
@@ -109,4 +112,5 @@ func _toggle_draw_debug() -> void:
 	
 	initialize()
 	_debug_view = TinyAStar3DDebugView.new(_astar)
+	_debug_view.mesh_scale = draw_debug_scale
 	add_child(_debug_view)
