@@ -61,10 +61,16 @@ func _build_astar() -> void:
 
 func get_astar_path(from: Vector3, to: Vector3) -> Array[Vector3]:
 	var path: Array[Vector3i] = _astar.GetPath(_astar.WorldToGrid(from), _astar.WorldToGrid(to))
+	
+	if path.is_empty():
+		return []
+	
 	var npath: Array[Vector3] = []
 	npath.resize(path.size())
+	
 	for idx: int in path.size():
 		npath[idx] = _astar.GridToWorld(path[idx])
+	
 	return npath
 
 
