@@ -14,8 +14,12 @@ const MATERIAL_UID: String = "uid://bilmhd1i35lu6"
 	set(value):
 		size = Vector3i(max(value.x, 1), max(value.y, 1), max(value.z, 1))
 		if _mesh: _mesh.size = size
-@export var is_traversible: bool = false
+@export var is_traversible: bool = false:
+	set(value):
+		is_traversible = value
+		_update_astar_traversible()
 
+var _astar: TinyAstar3D
 var _mesh: BoxMesh
 var _material: StandardMaterial3D = load(MATERIAL_UID)
 var _mesh_instance: MeshInstance3D
@@ -33,6 +37,25 @@ func _init() -> void:
 
 func _ready() -> void:
 	add_to_group(GROUP_ID + str(priority))
+	
+	_get_editor_astar()
+
+
+# Tries to acquire a TinyAStar3D instance from the current scene root.
+# Expects a tool mode get_astar() method implementation.
+func _get_editor_astar() -> void:
+	if not Engine.is_editor_hint():
+		return
+	
+	var m: Node = EditorInterface.get_edited_scene_root()
+	if m.has_method("get_astar"):
+		var a: TinyAstar3D = m.call("get_astar")
+		if a:
+			_astar = a
+
+
+func set_astar(new_astar: TinyAstar3D) -> void:
+	_astar = new_astar
 
 
 func get_grid_points_in_box(astar: TinyAstar3D) -> Array[Vector3i]:
@@ -83,7 +106,7 @@ func get_grid_points_in_box(astar: TinyAstar3D) -> Array[Vector3i]:
 	
 	var box_min: Vector3 = box_origin - extent
 	var box_max: Vector3 = box_origin + extent
-
+	
 	# Find the grid-cell range overlapping the AABB.
 	var min_x: float = clampi(int(floor((box_min.x - world_min.x) / cell_size.x)), 0,grid_size.x - 1)
 	var min_y: float = clampi(int(floor((box_min.y - world_min.y) / cell_size.y)), 0, grid_size.y - 1)
@@ -91,7 +114,7 @@ func get_grid_points_in_box(astar: TinyAstar3D) -> Array[Vector3i]:
 	var max_x: float = clampi(int(ceil((box_max.x - world_min.x) / cell_size.x)), 0, grid_size.x)
 	var max_y: float = clampi(int(ceil((box_max.y - world_min.y) / cell_size.y)), 0, grid_size.y)
 	var max_z: float = clampi(int(ceil((box_max.z - world_min.z) / cell_size.z)), 0, grid_size.z)
-
+	
 	# Test only cells within the box's AABB.
 	for x: int in range(min_x, max_x):
 		for y: int in range(min_y, max_y):
@@ -117,3 +140,11 @@ func get_grid_points_in_box(astar: TinyAstar3D) -> Array[Vector3i]:
 					result.append(Vector3i(x, y, z))
 	
 	return result
+
+
+func _update_astar_traversible() -> void:
+	if _astar and _astar.HasGrid():
+		
+		var points: Array[Vector3i] = get_grid_points_in_box(_astar)
+		for point: Vector3i in points:
+			_astar.SetTraversable(point, is_traversible)

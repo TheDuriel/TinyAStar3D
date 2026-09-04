@@ -28,7 +28,7 @@ public partial class TinyAstar3D : GodotObject
     // AStar is heavy and may be undesirable to run in the editor
     public void CreateAStar()
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 	    
 	    _astar = new BitAStar(_grid);
@@ -44,7 +44,7 @@ public partial class TinyAstar3D : GodotObject
     // Failed queries will return an empty array.
     public Godot.Collections.Array<Vector3I> GetPath(Vector3I from , Vector3I to)
     {
-	    if (_grid == null || _astar == null)
+	    if (!HasGrid() || !HasAStar())
 		    throw new InvalidOperationException("Grid or AStar is not set");
 	    
 	    List<int> idPath = _astar.FindPath(_grid.ToId(from.X, from.Y, from.Z), _grid.ToId(to.X, to.Y, to.Z));
@@ -65,7 +65,7 @@ public partial class TinyAstar3D : GodotObject
 	
     public bool GetTraversable(Vector3I position)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 	    
 	    return IsInsideGrid(position) && _grid.IsTraversable(_grid.ToId(position.X, position.Y, position.Z));
@@ -73,7 +73,7 @@ public partial class TinyAstar3D : GodotObject
 	
     public void SetTraversable(Vector3I position, bool state)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    if (!IsInsideGrid(position))
@@ -94,7 +94,7 @@ public partial class TinyAstar3D : GodotObject
 
     public Vector3I WorldToGrid(Vector3 worldPosition)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    if (!IsInsideWorld(worldPosition))
@@ -109,7 +109,7 @@ public partial class TinyAstar3D : GodotObject
 
     public Vector3 GridToWorld(Vector3I gridPosition)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    if (!IsInsideGrid(gridPosition))
@@ -124,7 +124,7 @@ public partial class TinyAstar3D : GodotObject
 
     public bool IsInsideWorld(Vector3 worldPosition)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    if (worldPosition.X < -_worldSize.X / 2 || worldPosition.X >= _worldSize.X / 2)
@@ -138,7 +138,7 @@ public partial class TinyAstar3D : GodotObject
     }
     public bool IsInsideGrid(Vector3I gridPosition)
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    if (gridPosition.X < 0 || gridPosition.X >= _gridSize.X)
@@ -153,9 +153,19 @@ public partial class TinyAstar3D : GodotObject
 
     public Vector3 GetCellSize()
     {
-	    if (_grid == null)
+	    if (!HasGrid())
 		    throw new InvalidOperationException("Grid is not set");
 
 	    return _cellSize;
+    }
+
+    public bool HasGrid()
+    {
+	    return (_grid != null);
+    }
+
+    public bool HasAStar()
+    {
+	    return  (_astar != null);
     }
 }
