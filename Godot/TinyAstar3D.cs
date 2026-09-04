@@ -5,7 +5,7 @@ using Godot;
 namespace HEADSHOTTHEMOON.DotNet.TinyAstar3D;
 
 [GlobalClass]
-public partial class TinyAstar3D : GodotObject
+public partial class TinyAstar3D : RefCounted
 {
 	private Vector3I _gridSize;
 	private Vector3 _worldSize;

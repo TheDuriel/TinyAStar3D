@@ -38,6 +38,9 @@ func _init() -> void:
 func _ready() -> void:
 	add_to_group(GROUP_ID + str(priority))
 	
+	if not Engine.is_editor_hint():
+		visible = false
+	
 	_get_editor_astar()
 
 
@@ -144,7 +147,7 @@ func get_grid_points_in_box(astar: TinyAstar3D) -> Array[Vector3i]:
 
 func _update_astar_traversible() -> void:
 	if _astar and _astar.HasGrid():
-		
+		print("toggle")
 		var points: Array[Vector3i] = get_grid_points_in_box(_astar)
 		for point: Vector3i in points:
 			_astar.SetTraversable(point, is_traversible)
