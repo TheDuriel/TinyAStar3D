@@ -19,10 +19,7 @@ var draw_debug: bool = false:
 # Should be divisible by 64
 @export var grid_size: Vector3i = Vector3i(256, 256, 256):
 	set(value):
-		grid_size = Vector3(
-			clampi(value.x + 64 if value.x > grid_size.x else value.x - 64 if value.x < grid_size.x else grid_size.x, 64, 512),
-			clampi(value.y + 64 if value.y > grid_size.y else value.y - 64 if value.y < grid_size.y else grid_size.y, 64, 512),
-			clampi(value.z + 64 if value.z > grid_size.z else value.z - 64 if value.z < grid_size.z else grid_size.z, 64, 512))
+		grid_size = Vector3i(clampi(value.x, 64, 512), clampi(value.y, 64, 512), clampi(value.z, 64, 512))
 # Any arbitrary size. The world is always centered on 0,0,0
 @export var world_size: Vector3 = Vector3(1024.0, 1024.0, 1024.0)
 
